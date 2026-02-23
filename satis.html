@@ -84,7 +84,7 @@
     <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left me-2"></i>ANA SAYFAYA DÖN</a>
     <div class="form-container">
         <h2>MOTOSİKLET TEKLİF FORMU</h2>
-        <form id="motorFormu" enctype="multipart/form-data">
+        <form id="motorFormu" action="https://formsubmit.co/yakupsaglam47@gmail.com" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="_subject" value="YENİ MOTOR SATIŞ TALEBİ! 🏍️">
             <input type="hidden" name="_captcha" value="false">
 
@@ -176,7 +176,52 @@
     }
 
     // --- Form Gönderimi ve Sayaçlı Yönlendirme ---
-    document.getElementById('motorFormu').addEventListener('submit', function(e) {
+   document.getElementById('motorFormu').addEventListener('submit', function(e) {
+    // Fotoğraf kontrolü
+    if (dt.items.length === 0) {
+        e.preventDefault(); // Gönderimi durdur
+        alert("📸 Kral, motorun en az 1 fotoğrafını yükle de ustalarımız baksın.");
+        return;
+    }
+
+    // PIRTLAYAN MODAL VE SAYAÇ
+    e.preventDefault(); // Önce biz modalı gösterelim
+    const b = document.getElementById('btn');
+    b.disabled = true;
+    b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> İLETİLİYOR...';
+
+    // Form verilerini hazırlayıp manuel gönderelim ki resimler garanti gitsin
+    const formData = new FormData(this);
+    
+    fetch(this.action, {
+        method: "POST",
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            const overlay = document.getElementById('pirtOverlay');
+            const box = document.getElementById('pirtBox');
+            const sayacElement = document.getElementById('sayac');
+            
+            overlay.style.display = 'flex';
+            setTimeout(() => { box.classList.add('aktif'); }, 50);
+
+            let saniye = 5;
+            const geriSayim = setInterval(() => {
+                saniye--;
+                sayacElement.innerText = saniye;
+                if (saniye <= 0) {
+                    clearInterval(geriSayim);
+                    window.location.href = "index.html";
+                }
+            }, 1000);
+        } else {
+            alert("❌ Bir sorun oluştu. Resim boyutları çok büyük olabilir!");
+            b.disabled = false;
+            b.innerText = "TEKRAR DENE";
+        }
+    });
+});
         e.preventDefault();
         const b = document.getElementById('btn');
         if (dt.items.length === 0) { alert("📸 Lütfen motorun en az 1 fotoğrafını yükleyin."); return; }
